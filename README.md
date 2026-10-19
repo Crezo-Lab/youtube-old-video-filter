@@ -36,3 +36,10 @@
 
 **Crezo Lab** (クレゾ開発局)  
 Experimental Web Tools & Productivity Extensions.
+
+---
+
+## 📄 ライセンス (License)
+
+このプロジェクトは [MIT License](LICENSE) のもとで公開されています。  
+改変や再配布を行う場合は、著作権表示（`Copyright (c) 2026 Crezo Lab`）およびライセンス条文を必ず保持してください。
