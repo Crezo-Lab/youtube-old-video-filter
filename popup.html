@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<style>
+  body { font: 13px -apple-system, "Hiragino Sans", sans-serif; width: 280px; margin: 0; padding: 14px; color: #0f0f0f; }
+  h1 { font-size: 14px; margin: 0 0 12px; }
+  .row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+  label.sw { display: flex; justify-content: space-between; align-items: center; font-weight: 600; margin-bottom: 12px; }
+  input[type=number] { width: 56px; padding: 4px; }
+  select { padding: 4px; }
+  fieldset { border: 1px solid #ddd; border-radius: 6px; padding: 6px 10px 8px; margin: 0 0 10px; }
+  legend { font-size: 12px; color: #606060; }
+  fieldset label { display: block; margin: 3px 0; }
+  textarea { width: 100%; box-sizing: border-box; height: 64px; font: 12px ui-monospace, monospace; padding: 4px; }
+  button { margin-top: 4px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
+  .hint { font-size: 11px; color: #606060; margin: 2px 0 0; }
+  #status { font-size: 12px; color: #606060; border-top: 1px solid #eee; padding-top: 8px; }
+</style>
+</head>
+<body>
+  <h1 data-i18n="extName">YouTube 古い動画フィルター</h1>
+
+  <label class="sw"><span data-i18n="filterEnabled">フィルター有効</span> <input type="checkbox" id="enabled"></label>
+
+  <fieldset>
+    <legend data-i18n="oldVideos">古い動画</legend>
+    <div class="row">
+      <input type="number" id="amount" min="1" max="999">
+      <select id="unit">
+        <option value="day" data-i18n="unitDay">日</option>
+        <option value="week" data-i18n="unitWeek">週間</option>
+        <option value="month" data-i18n="unitMonth">か月</option>
+        <option value="year" data-i18n="unitYear">年</option>
+      </select>
+      <span data-i18n="olderThan">以上前</span>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="otherFilters">その他のフィルター</legend>
+    <label><input type="checkbox" id="hideWatched"> <span data-i18n="hideWatchedPrefix">視聴済み（</span><input type="number" id="watchedPercent" min="1" max="100" style="width:44px"><span data-i18n="hideWatchedSuffix">% 以上）</span></label>
+    <label><input type="checkbox" id="hideShorts"> <span data-i18n="hideShorts">Shorts を非表示</span></label>
+  </fieldset>
+
+  <div class="row">
+    <span data-i18n="targetVideos">対象の動画を</span>
+    <select id="mode">
+      <option value="hide" data-i18n="modeHide">非表示にする</option>
+      <option value="dim" data-i18n="modeDim">薄く表示する</option>
+    </select>
+  </div>
+
+  <fieldset>
+    <legend data-i18n="targetPages">適用するページ</legend>
+    <label><input type="checkbox" data-page="home"> <span data-i18n="pageHome">ホーム</span></label>
+    <label><input type="checkbox" data-page="search"> <span data-i18n="pageSearch">検索結果</span></label>
+    <label><input type="checkbox" data-page="watch"> <span data-i18n="pageWatch">再生画面の関連動画</span></label>
+    <label><input type="checkbox" data-page="subscriptions"> <span data-i18n="pageSubscriptions">登録チャンネル</span></label>
+    <label><input type="checkbox" data-page="channel"> <span data-i18n="pageChannel">チャンネルページ</span></label>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="allowChannelsLegend">古くても表示するチャンネル</legend>
+    <textarea id="allowChannels" data-i18n-ph="channelPlaceholder" placeholder="@handle またはチャンネル名（1行に1つ）"></textarea>
+    <button id="addCurrent" hidden></button>
+    <p class="hint" data-i18n="channelHint">チャンネルページか再生画面で開くと追加ボタンが出ます</p>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="blockChannelsLegend">常に非表示にするチャンネル（ブロック）</legend>
+    <textarea id="blockChannels" data-i18n-ph="channelPlaceholder" placeholder="@handle またはチャンネル名（1行に1つ）"></textarea>
+    <button id="blockCurrent" hidden></button>
+  </fieldset>
+
+  <div id="status">—</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

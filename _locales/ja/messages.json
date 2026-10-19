@@ -1,0 +1,114 @@
+{
+  "extName": {
+    "message": "YouTube 古い動画フィルター"
+  },
+  "extDesc": {
+    "message": "古い動画・視聴済み動画・Shorts・指定チャンネルを YouTube の一覧から非表示にします。"
+  },
+  "filterEnabled": {
+    "message": "フィルター有効"
+  },
+  "oldVideos": {
+    "message": "古い動画"
+  },
+  "unitDay": {
+    "message": "日"
+  },
+  "unitWeek": {
+    "message": "週間"
+  },
+  "unitMonth": {
+    "message": "か月"
+  },
+  "unitYear": {
+    "message": "年"
+  },
+  "olderThan": {
+    "message": "以上前"
+  },
+  "otherFilters": {
+    "message": "その他のフィルター"
+  },
+  "hideWatchedPrefix": {
+    "message": "視聴済み（"
+  },
+  "hideWatchedSuffix": {
+    "message": "% 以上）"
+  },
+  "hideShorts": {
+    "message": "Shorts を非表示"
+  },
+  "targetVideos": {
+    "message": "対象の動画を"
+  },
+  "modeHide": {
+    "message": "非表示にする"
+  },
+  "modeDim": {
+    "message": "薄く表示する"
+  },
+  "targetPages": {
+    "message": "適用するページ"
+  },
+  "pageHome": {
+    "message": "ホーム"
+  },
+  "pageSearch": {
+    "message": "検索結果"
+  },
+  "pageWatch": {
+    "message": "再生画面の関連動画"
+  },
+  "pageSubscriptions": {
+    "message": "登録チャンネル"
+  },
+  "pageChannel": {
+    "message": "チャンネルページ"
+  },
+  "allowChannelsLegend": {
+    "message": "古くても表示するチャンネル"
+  },
+  "channelPlaceholder": {
+    "message": "@handle またはチャンネル名（1行に1つ）"
+  },
+  "channelHint": {
+    "message": "チャンネルページか再生画面で開くと追加ボタンが出ます"
+  },
+  "blockChannelsLegend": {
+    "message": "常に非表示にするチャンネル（ブロック）"
+  },
+  "addAllowButton": {
+    "message": "＋ $CHANNEL$ を許可に追加",
+    "placeholders": {
+      "channel": { "content": "$1" }
+    }
+  },
+  "addBlockButton": {
+    "message": "✕ $CHANNEL$ をブロックに追加",
+    "placeholders": {
+      "channel": { "content": "$1" }
+    }
+  },
+  "statusNotYoutube": {
+    "message": "YouTube のタブで開くと件数が表示されます"
+  },
+  "statusReload": {
+    "message": "ページを再読み込みしてください"
+  },
+  "statusExcludedPage": {
+    "message": "このページは日付・視聴済みフィルターの対象外です"
+  },
+  "statusResult": {
+    "message": "このページ：古い動画 $OLD$ 件／視聴済み $WATCHED$ 件",
+    "placeholders": {
+      "old": { "content": "$1" },
+      "watched": { "content": "$2" }
+    }
+  },
+  "statusBlocked": {
+    "message": "／ブロック $BLOCKED$ 件",
+    "placeholders": {
+      "blocked": { "content": "$1" }
+    }
+  }
+}

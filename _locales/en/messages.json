@@ -1,0 +1,114 @@
+{
+  "extName": {
+    "message": "YouTube Old Video Filter (NY)"
+  },
+  "extDesc": {
+    "message": "Hide old videos, watched videos, Shorts, and blocked channels from YouTube feeds."
+  },
+  "filterEnabled": {
+    "message": "Filter Enabled"
+  },
+  "oldVideos": {
+    "message": "Old Videos"
+  },
+  "unitDay": {
+    "message": "days"
+  },
+  "unitWeek": {
+    "message": "weeks"
+  },
+  "unitMonth": {
+    "message": "months"
+  },
+  "unitYear": {
+    "message": "years"
+  },
+  "olderThan": {
+    "message": "ago or older"
+  },
+  "otherFilters": {
+    "message": "Other Filters"
+  },
+  "hideWatchedPrefix": {
+    "message": "Watched ("
+  },
+  "hideWatchedSuffix": {
+    "message": "% or more)"
+  },
+  "hideShorts": {
+    "message": "Hide Shorts"
+  },
+  "targetVideos": {
+    "message": "Target videos"
+  },
+  "modeHide": {
+    "message": "Hide completely"
+  },
+  "modeDim": {
+    "message": "Dim (grayscale)"
+  },
+  "targetPages": {
+    "message": "Apply to pages"
+  },
+  "pageHome": {
+    "message": "Home"
+  },
+  "pageSearch": {
+    "message": "Search results"
+  },
+  "pageWatch": {
+    "message": "Related videos (Watch page)"
+  },
+  "pageSubscriptions": {
+    "message": "Subscriptions"
+  },
+  "pageChannel": {
+    "message": "Channel pages"
+  },
+  "allowChannelsLegend": {
+    "message": "Always show channels (Whitelist)"
+  },
+  "channelPlaceholder": {
+    "message": "@handle or channel name (one per line)"
+  },
+  "channelHint": {
+    "message": "Open on a channel or video page to quickly add here"
+  },
+  "blockChannelsLegend": {
+    "message": "Always hide channels (Blacklist)"
+  },
+  "addAllowButton": {
+    "message": "+ Allow $CHANNEL$",
+    "placeholders": {
+      "channel": { "content": "$1" }
+    }
+  },
+  "addBlockButton": {
+    "message": "✕ Block $CHANNEL$",
+    "placeholders": {
+      "channel": { "content": "$1" }
+    }
+  },
+  "statusNotYoutube": {
+    "message": "Open on a YouTube tab to view stats"
+  },
+  "statusReload": {
+    "message": "Please reload the page"
+  },
+  "statusExcludedPage": {
+    "message": "This page is not target for date/watched filters"
+  },
+  "statusResult": {
+    "message": "This page: $OLD$ old / $WATCHED$ watched",
+    "placeholders": {
+      "old": { "content": "$1" },
+      "watched": { "content": "$2" }
+    }
+  },
+  "statusBlocked": {
+    "message": " / $BLOCKED$ blocked",
+    "placeholders": {
+      "blocked": { "content": "$1" }
+    }
+  }
+}
