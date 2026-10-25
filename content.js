@@ -253,6 +253,13 @@
     }, 200);
   }
 
+  /** 待っている判定を止めてから、すぐ判定する（二重に走らせない） */
+  function runNow() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    run();
+  }
+
   function rejudgeAll() {
     gen++;
     nudges = 0;
@@ -270,14 +277,14 @@
       allow = new Set((settings.allowChannels || []).map(norm).filter(Boolean));
       block = new Set((settings.blockChannels || []).map(norm).filter(Boolean));
       gen++;
-      run();
+      runNow();
     });
   }
 
   chrome.storage.onChanged.addListener(loadSettings);
   chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
     if (msg && msg.type === "ytof-count") {
-      run();
+      runNow();
       reply({ ...counts, page: pageType(), channel: currentChannel() });
     }
   });
@@ -285,17 +292,21 @@
   // 判定に関わる変化だけで動く。
   // 再生中の映像・ホバーの試し再生（.html5-video-player の中）は絶えず書き換わるので見ない
   /** カードの判定を消す。外側のカード（ytd-rich-item-renderer など）で判定するので外側も消す */
+  // 消さずに「済み」を外す（投稿日の無いカードの「5回で見るのをやめる」の回数を残すため）
   function invalidate(card) {
-    cache.delete(card);
+    const st = cache.get(card);
+    if (st) st.done = false;
     const outer = card.parentElement ? card.parentElement.closest(OUTER) : null;
-    if (outer) cache.delete(outer);
+    const ost = outer ? cache.get(outer) : null;
+    if (ost) ost.done = false;
   }
 
   function onMutations(records) {
     let need = false;
     for (const r of records) {
-      const t = r.target;
-      if (t.nodeType !== 1) continue;
+      // 文字だけの書き換え（使い回しで投稿日の文字の節が変わる）は、その親の要素で見る
+      const t = r.target.nodeType === 1 ? r.target : r.target.parentElement;
+      if (!t) continue;
       if (r.type === "attributes") {
         // style は再生バー（見終わった割合）だけ。href はカードの使い回し
         if (r.attributeName === "style" && !t.matches(PROGRESS)) continue;
@@ -306,14 +317,14 @@
       if (t.closest(PLAYER)) continue;
       const card = t.closest(CARD);
       if (card) { invalidate(card); need = true; continue; }
-      if (r.addedNodes.length) need = true; // 新しいカード・棚が来たかもしれない
+      if (r.type === "childList" && r.addedNodes.length) need = true; // 新しいカード・棚が来たかもしれない
     }
     if (need) schedule();
   }
 
   const targetNode = document.querySelector("ytd-app") || document.documentElement;
   new MutationObserver(onMutations).observe(targetNode, {
-    childList: true, subtree: true,
+    childList: true, subtree: true, characterData: true,
     attributes: true, attributeFilter: ["style", "href"]
   });
   window.addEventListener("yt-navigate-finish", rejudgeAll);
