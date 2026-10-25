@@ -2,17 +2,6 @@
   display: none !important;
 }
 
-/* グリッド行の空白（歯抜け）を詰める補正 */
-ytd-rich-grid-row #contents {
-  display: flex !important;
-  flex-wrap: wrap !important;
-}
-ytd-rich-item-renderer.ytof-hidden {
-  width: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
 .ytof-dimmed {
   opacity: 0.2 !important;
   filter: grayscale(1);
@@ -22,22 +11,13 @@ ytd-rich-item-renderer.ytof-hidden {
   opacity: 0.8 !important;
 }
 
-/* Shorts 非表示（棚・カード・サイドメニュー） */
+/* Shorts 非表示（棚・カード・サイドメニュー・チップ）
+   :has() はページ全体の再計算が重いので使わない。中身の判定は content.js が印（ytof-short / ytof-short-box）で付ける */
 html.ytof-noshorts ytd-reel-shelf-renderer,
 html.ytof-noshorts ytd-rich-shelf-renderer[is-shorts],
-html.ytof-noshorts ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]),
-html.ytof-noshorts ytd-rich-section-renderer:has(ytm-shorts-lockup-view-model),
-html.ytof-noshorts grid-shelf-view-model:has(ytm-shorts-lockup-view-model),
-html.ytof-noshorts ytd-item-section-renderer:has(> #contents > grid-shelf-view-model ytm-shorts-lockup-view-model),
-html.ytof-noshorts ytd-rich-item-renderer:has(a[href^="/shorts/"]),
-html.ytof-noshorts ytd-video-renderer:has(a[href^="/shorts/"]),
-html.ytof-noshorts ytd-compact-video-renderer:has(a[href^="/shorts/"]),
-html.ytof-noshorts yt-lockup-view-model:has(a[href^="/shorts/"]),
-html.ytof-noshorts ytd-guide-entry-renderer:has(a[title="Shorts"]),
-html.ytof-noshorts ytd-guide-entry-renderer:has(a[title="ショート"]),
+html.ytof-noshorts .ytof-short,
+html.ytof-noshorts .ytof-short-box,
 html.ytof-noshorts ytd-mini-guide-entry-renderer[aria-label="Shorts"],
-html.ytof-noshorts ytd-mini-guide-entry-renderer[aria-label="ショート"],
-html.ytof-noshorts yt-chip-cloud-chip-renderer:has(yt-formatted-string[title="Shorts"]),
-html.ytof-noshorts yt-chip-cloud-chip-renderer:has(yt-formatted-string[title="ショート"]) {
+html.ytof-noshorts ytd-mini-guide-entry-renderer[aria-label="ショート"] {
   display: none !important;
 }
