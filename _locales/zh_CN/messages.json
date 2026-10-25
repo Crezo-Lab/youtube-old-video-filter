@@ -31,5 +31,8 @@
   "statusReload": { "message": "请刷新页面" },
   "statusExcludedPage": { "message": "此页面不受日期/观看过滤影响" },
   "statusResult": { "message": "本页：旧视频 $OLD$ 条／已观看 $WATCHED$ 条", "placeholders": { "old": { "content": "$1" }, "watched": { "content": "$2" } } },
-  "statusBlocked": { "message": "／屏蔽 $BLOCKED$ 条", "placeholders": { "blocked": { "content": "$1" } } }
+  "statusBlocked": { "message": "／屏蔽 $BLOCKED$ 条", "placeholders": { "blocked": { "content": "$1" } } },
+  "statusTitle": { "message": "本页已隐藏" },
+  "statWatched": { "message": "已观看" },
+  "statBlocked": { "message": "已屏蔽" }
 }

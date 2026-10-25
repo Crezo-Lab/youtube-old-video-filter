@@ -110,5 +110,8 @@
     "placeholders": {
       "blocked": { "content": "$1" }
     }
-  }
+  },
+  "statusTitle": { "message": "Hidden on this page" },
+  "statWatched": { "message": "Watched" },
+  "statBlocked": { "message": "Blocked" }
 }

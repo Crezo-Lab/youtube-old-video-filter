@@ -1,5 +1,8 @@
 const I18N_DICTS = {
   "ja": {
+    "statusTitle": "このページで隠した数",
+    "statWatched": "視聴済み",
+    "statBlocked": "ブロック",
     "extName": "YouTube 古い動画フィルター",
     "extDesc": "古い動画・視聴済み動画・Shorts・指定チャンネルを YouTube の一覧から非表示にします。",
     "filterEnabled": "フィルター有効",
@@ -35,6 +38,9 @@ const I18N_DICTS = {
     "statusBlocked": "／ブロック $BLOCKED$ 件"
   },
   "en": {
+    "statusTitle": "Hidden on this page",
+    "statWatched": "Watched",
+    "statBlocked": "Blocked",
     "extName": "YouTube Old Video Filter (NY)",
     "extDesc": "Hide old videos, watched videos, Shorts, and blocked channels from YouTube feeds.",
     "filterEnabled": "Filter Enabled",
@@ -70,6 +76,9 @@ const I18N_DICTS = {
     "statusBlocked": " / $BLOCKED$ blocked"
   },
   "zh_TW": {
+    "statusTitle": "本頁已隱藏",
+    "statWatched": "已觀看",
+    "statBlocked": "已封鎖",
     "extName": "YouTube 舊影片過濾器 (NY)",
     "extDesc": "從 YouTube 列表中隱藏舊影片、已觀看影片、Shorts 及已封鎖的頻道。",
     "filterEnabled": "啟用過濾器",
@@ -105,6 +114,9 @@ const I18N_DICTS = {
     "statusBlocked": "／封鎖 $BLOCKED$ 部"
   },
   "zh_CN": {
+    "statusTitle": "本页已隐藏",
+    "statWatched": "已观看",
+    "statBlocked": "已屏蔽",
     "extName": "YouTube 旧视频过滤器 (NY)",
     "extDesc": "从 YouTube 列表中隐藏旧视频、已观看视频、Shorts 及已屏蔽的频道。",
     "filterEnabled": "启用过滤器",
@@ -140,6 +152,9 @@ const I18N_DICTS = {
     "statusBlocked": "／屏蔽 $BLOCKED$ 条"
   },
   "ko": {
+    "statusTitle": "이 페이지에서 숨김",
+    "statWatched": "시청함",
+    "statBlocked": "차단",
     "extName": "YouTube 오래된 동영상 필터 (NY)",
     "extDesc": "YouTube 피드에서 오래된 동영상, 시청한 동영상, Shorts 및 차단된 채널을 숨깁니다.",
     "filterEnabled": "필터 활성화",
@@ -175,6 +190,9 @@ const I18N_DICTS = {
     "statusBlocked": "／차단 $BLOCKED$개"
   },
   "es": {
+    "statusTitle": "Ocultos en esta página",
+    "statWatched": "Vistos",
+    "statBlocked": "Bloqueados",
     "extName": "Filtro de videos antiguos de YouTube (NY)",
     "extDesc": "Oculta videos antiguos, vistos, Shorts y canales bloqueados de YouTube.",
     "filterEnabled": "Filtro activado",

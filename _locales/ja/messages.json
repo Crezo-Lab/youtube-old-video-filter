@@ -110,5 +110,8 @@
     "placeholders": {
       "blocked": { "content": "$1" }
     }
-  }
+  },
+  "statusTitle": { "message": "このページで隠した数" },
+  "statWatched": { "message": "視聴済み" },
+  "statBlocked": { "message": "ブロック" }
 }

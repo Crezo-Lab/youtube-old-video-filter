@@ -31,5 +31,8 @@
   "statusReload": { "message": "請重新整理頁面" },
   "statusExcludedPage": { "message": "此頁面不受日期/觀看過濾影響" },
   "statusResult": { "message": "本頁：舊影片 $OLD$ 部／已觀看 $WATCHED$ 部", "placeholders": { "old": { "content": "$1" }, "watched": { "content": "$2" } } },
-  "statusBlocked": { "message": "／封鎖 $BLOCKED$ 部", "placeholders": { "blocked": { "content": "$1" } } }
+  "statusBlocked": { "message": "／封鎖 $BLOCKED$ 部", "placeholders": { "blocked": { "content": "$1" } } },
+  "statusTitle": { "message": "本頁已隱藏" },
+  "statWatched": { "message": "已觀看" },
+  "statBlocked": { "message": "已封鎖" }
 }

@@ -31,5 +31,8 @@
   "statusReload": { "message": "페이지를 새로고침해 주세요" },
   "statusExcludedPage": { "message": "이 페이지는 날짜/시청 필터 대상이 아닙니다" },
   "statusResult": { "message": "현재 페이지: 오래된 동영상 $OLD$개／시청 완료 $WATCHED$개", "placeholders": { "old": { "content": "$1" }, "watched": { "content": "$2" } } },
-  "statusBlocked": { "message": "／차단 $BLOCKED$개", "placeholders": { "blocked": { "content": "$1" } } }
+  "statusBlocked": { "message": "／차단 $BLOCKED$개", "placeholders": { "blocked": { "content": "$1" } } },
+  "statusTitle": { "message": "이 페이지에서 숨김" },
+  "statWatched": { "message": "시청함" },
+  "statBlocked": { "message": "차단" }
 }

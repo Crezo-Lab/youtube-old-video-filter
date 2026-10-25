@@ -31,5 +31,8 @@
   "statusReload": { "message": "Por favor, recarga la página" },
   "statusExcludedPage": { "message": "Esta página no está sujeta al filtro" },
   "statusResult": { "message": "Esta página: $OLD$ antiguos / $WATCHED$ vistos", "placeholders": { "old": { "content": "$1" }, "watched": { "content": "$2" } } },
-  "statusBlocked": { "message": " / $BLOCKED$ bloqueados", "placeholders": { "blocked": { "content": "$1" } } }
+  "statusBlocked": { "message": " / $BLOCKED$ bloqueados", "placeholders": { "blocked": { "content": "$1" } } },
+  "statusTitle": { "message": "Ocultos en esta página" },
+  "statWatched": { "message": "Vistos" },
+  "statBlocked": { "message": "Bloqueados" }
 }
