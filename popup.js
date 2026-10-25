@@ -12,6 +12,7 @@ const DEFAULTS = {
 };
 
 const $ = id => document.getElementById(id);
+$("appVersion").textContent = "v" + chrome.runtime.getManifest().version;
 const pageBoxes = [...document.querySelectorAll("[data-page]")];
 const parseList = id => [...new Set($(id).value.split("\n").map(s => s.trim()).filter(Boolean))];
 
