@@ -12,7 +12,7 @@
 }
 
 /* Shorts 非表示（棚・カード・サイドメニュー・チップ）
-   :has() はページ全体の再計算が重いので使わない。中身の判定は content.js が印（ytof-short / ytof-short-box）で付ける */
+   中身で選ぶ擬似クラス（has）はページ全体の再計算が重いので使わない。中身の判定は content.js が印（ytof-short / ytof-short-box）で付ける */
 html.ytof-noshorts ytd-reel-shelf-renderer,
 html.ytof-noshorts ytd-rich-shelf-renderer[is-shorts],
 html.ytof-noshorts .ytof-short,

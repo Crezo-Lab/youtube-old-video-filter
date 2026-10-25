@@ -284,6 +284,13 @@
 
   // 判定に関わる変化だけで動く。
   // 再生中の映像・ホバーの試し再生（.html5-video-player の中）は絶えず書き換わるので見ない
+  /** カードの判定を消す。外側のカード（ytd-rich-item-renderer など）で判定するので外側も消す */
+  function invalidate(card) {
+    cache.delete(card);
+    const outer = card.parentElement ? card.parentElement.closest(OUTER) : null;
+    if (outer) cache.delete(outer);
+  }
+
   function onMutations(records) {
     let need = false;
     for (const r of records) {
@@ -293,18 +300,12 @@
         // style は再生バー（見終わった割合）だけ。href はカードの使い回し
         if (r.attributeName === "style" && !t.matches(PROGRESS)) continue;
         const card = t.closest(CARD);
-        if (card) { cache.delete(card); need = true; }
+        if (card) { invalidate(card); need = true; }
         continue;
       }
       if (t.closest(PLAYER)) continue;
       const card = t.closest(CARD);
-      if (card) {
-        cache.delete(card);
-        const outer = card.parentElement && card.parentElement.closest(OUTER);
-        if (outer) cache.delete(outer);
-        need = true;
-        continue;
-      }
+      if (card) { invalidate(card); need = true; continue; }
       if (r.addedNodes.length) need = true; // 新しいカード・棚が来たかもしれない
     }
     if (need) schedule();
