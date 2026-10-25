@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>試験台 - YouTube 古い動画フィルター</title>
+<style>
+  body { margin: 0; font: 13px sans-serif; background: #fff; color: #111; }
+  #bench { position: sticky; top: 0; z-index: 99; background: #222; color: #eee; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+  #bench b { color: #8f8; }
+  #bench button { font: inherit; }
+  #bench .bad { color: #f88; }
+  section.screen { border-top: 4px solid #36c; margin: 0; padding: 6px 10px; }
+  section.screen > h2 { margin: 4px 0; font-size: 14px; color: #36c; }
+  .grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  ytd-rich-item-renderer, ytd-compact-video-renderer, yt-lockup-view-model { display: block; width: 240px; border: 1px solid #ddd; padding: 4px; }
+  ytd-video-renderer { display: block; border: 1px solid #ddd; padding: 4px; margin: 4px 0; }
+  ytd-continuation-item-renderer { display: block; height: 40px; background: #eee; text-align: center; }
+  ytd-rich-shelf-renderer, ytd-reel-shelf-renderer { display: block; border: 1px dashed #c33; padding: 4px; margin: 4px 0; }
+  .thumb { position: relative; height: 90px; background: #bcd; }
+  ytd-thumbnail-overlay-resume-playback-renderer { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #666; }
+  ytd-thumbnail-overlay-resume-playback-renderer #progress { height: 4px; background: #f00; }
+  .meta span { margin-right: 6px; }
+  .badge-style-type-live-now { background: #c00; color: #fff; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div id="bench">
+  <span>隠れた <b id="s-hidden">0</b></span>
+  <span>薄くした <b id="s-dim">0</b></span>
+  <span>カード <b id="s-total">0</b></span>
+  <span>run 回数 <b id="s-runs">0</b> / 最後 <b id="s-last">0</b>ms / 最大 <b id="s-max">0</b>ms / 平均 <b id="s-avg">0</b>ms</span>
+  <span>手動 run <b id="s-manual">-</b>ms</span>
+  <span>想定との食い違い <b id="s-mismatch">0</b></span>
+  <button id="b-add">カードを100件足す（無限スクロール）</button>
+  <button id="b-bar">再生バーを毎秒書き換え: <span id="bar-state">停止</span></button>
+  <button id="b-run">手動で run</button>
+  <button id="b-flip">hide/dim 切替</button>
+  <span id="s-settings" style="opacity:.7"></span>
+  <span id="s-detail" class="bad"></span>
+</div>
+
+<ytd-app>
+  <section class="screen" id="screen-home">
+    <h2>ホーム（ytd-rich-item-renderer）</h2>
+    <ytd-rich-grid-renderer><div class="grid" id="home-grid"></div></ytd-rich-grid-renderer>
+    <ytd-rich-shelf-renderer is-shorts><span>ショート棚</span>
+      <ytd-rich-item-renderer><a href="/shorts/aaa1">棚のショート</a><span class="meta"><span>1 日前</span></span></ytd-rich-item-renderer>
+    </ytd-rich-shelf-renderer>
+    <ytd-continuation-item-renderer>続きを読み込み中…</ytd-continuation-item-renderer>
+  </section>
+
+  <section class="screen" id="screen-search">
+    <h2>検索（ytd-video-renderer・yt-lockup-view-model）</h2>
+    <div id="search-list"></div>
+    <ytd-continuation-item-renderer>続きを読み込み中…</ytd-continuation-item-renderer>
+  </section>
+
+  <section class="screen" id="screen-watch">
+    <h2>再生画面の右（ytd-compact-video-renderer・yt-lockup-view-model）</h2>
+    <div id="watch-list" class="grid"></div>
+    <ytd-continuation-item-renderer>続きを読み込み中…</ytd-continuation-item-renderer>
+  </section>
+</ytd-app>
+
+<script src="chrome-stub.js"></script>
+<script>
+// カードの元データ。想定（隠れるはず／薄くなるはず）は content.js を使わず、
+// このデータ（data-*）と URL の設定だけから別に計算し、実際の結果と突き合わせる。
+const TIMES = [
+  ["3 日前", 3], ["2 年前", 730], ["1 month ago", 30], ["5 hours ago", 5/24], ["4 weeks ago", 28],
+  ["11 か月前", 330], ["1 年前", 365], ["2 days ago", 2], ["a year ago", 365], ["3 週間前", 21],
+  ["30 分前", 30/1440], ["6 ヶ月前", 180], ["10 years ago", 3650], [null, null]
+];
+const CHANNELS = ["@oldmaster", "@newsdaily", "@spammer", "@cooking", "@gadgets", "@music"];
+const CTYPES = ["rich", "video", "compact", "lockup"];
+const TAGS = { rich: "ytd-rich-item-renderer", video: "ytd-video-renderer", compact: "ytd-compact-video-renderer", lockup: "yt-lockup-view-model" };
+
+let seed = 7;
+const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+const pick = a => a[Math.floor(rnd() * a.length)];
+let serial = 0;
+
+function makeData() {
+  const r = rnd();
+  const kind = r < 0.08 ? "live" : r < 0.14 ? "premiere" : r < 0.22 ? "shorts" : "normal";
+  const t = pick(TIMES);
+  return { kind, time: kind === "normal" ? t[0] : null, age: kind === "normal" ? t[1] : 0,
+    w: rnd() < 0.3 ? Math.floor(rnd() * 100) : 0, ch: pick(CHANNELS), id: ++serial };
+}
+
+function build(d, ctype) {
+  const el = document.createElement(TAGS[ctype]);
+  const href = d.kind === "shorts" ? `/shorts/s${d.id}` : `/watch?v=v${d.id}`;
+  const timeHtml = d.kind === "live" ? `<span class="badge-style-type-live-now">ライブ配信中</span><span>1.2万人が視聴中</span>`
+    : d.kind === "premiere" ? `<ytd-badge-supported-renderer><span>プレミア公開</span></ytd-badge-supported-renderer><span>公開予定</span>`
+    : `<span>${(d.id * 7919 % 900) + 10}万 回視聴</span>${d.time ? `<span>${d.time}</span>` : ""}`;
+  const prog = d.w ? `<ytd-thumbnail-overlay-resume-playback-renderer><div id="progress" style="width:${d.w}%"></div></ytd-thumbnail-overlay-resume-playback-renderer>` : "";
+  if (ctype === "lockup") {
+    el.innerHTML = `<div class="thumb"><a href="${href}"></a>${prog}</div><div class="yt-lockup-metadata-view-model__title"><a href="${href}">動画 ${d.id}</a></div>
+      <div class="yt-content-metadata-view-model__metadata-row"><span class="yt-content-metadata-view-model__metadata-text"><a href="/${d.ch}">${d.ch.slice(1)}</a></span></div>
+      <div class="meta">${timeHtml}</div>`;
+  } else {
+    el.innerHTML = `<div class="thumb"><a href="${href}"></a>${prog}</div><h3><a id="video-title" href="${href}">動画 ${d.id}（${d.kind}）</a></h3>
+      <ytd-channel-name><div id="text"><a href="/${d.ch}">${d.ch.slice(1)}</a></div></ytd-channel-name>
+      <div id="metadata-line" class="meta">${timeHtml}</div>`;
+  }
+  el.dataset.kind = d.kind; el.dataset.age = d.age ?? ""; el.dataset.w = d.w; el.dataset.ch = d.ch;
+  return el;
+}
+
+function hostFor(ct, i) {
+  return { rich: "#home-grid", video: "#search-list", compact: "#watch-list", lockup: i % 2 ? "#search-list" : "#watch-list" }[ct];
+}
+function addCards(n) {
+  for (let i = 0; i < n; i++) {
+    const d = makeData(), c = pick(CTYPES);
+    document.querySelector(hostFor(c, i)).appendChild(build(d, c));
+  }
+}
+
+// 狙った組み合わせを各カード種に必ず入れる（4種 x 12 = 48 件）
+const FIXED = [
+  { kind: "normal", time: "3 日前", age: 3 }, { kind: "normal", time: "2 年前", age: 730 }, { kind: "normal", time: "1 month ago", age: 30 },
+  { kind: "live", time: null, age: 0 }, { kind: "premiere", time: null, age: 0 }, { kind: "shorts", time: null, age: 0 },
+  { kind: "normal", time: "2 年前", age: 730, w: 85 }, { kind: "normal", time: "3 日前", age: 3, w: 90 }, { kind: "normal", time: "3 日前", age: 3, w: 40 },
+  { kind: "normal", time: "5 年前", age: 1825, ch: "@oldmaster" }, { kind: "normal", time: "1 日前", age: 1, ch: "@spammer" },
+  { kind: "normal", time: null, age: null }
+];
+CTYPES.forEach(ct => FIXED.forEach((f, i) => {
+  document.querySelector(hostFor(ct, i)).appendChild(build({ w: 0, ch: "@cooking", id: ++serial, ...f }, ct));
+}));
+addCards(12);   // 計 60 件 + 棚の1件
+
+function expected(el) {
+  const s = window.__stubSettings();
+  const mode = s.mode === "dim" ? "dim" : "hide";
+  if (s.enabled === false) return "keep";
+  if (el.dataset.kind === "shorts" && s.hideShorts !== false) return "hide";
+  const norm = x => x.toLowerCase();
+  const ch = norm(el.dataset.ch);
+  if ((s.blockChannels || []).map(norm).includes(ch)) return mode;
+  if (s.hideWatched !== false && Number(el.dataset.w) >= (s.watchedPercent ?? 80)) return mode;
+  const lim = (s.amount ?? 1) * ({ day: 1, week: 7, month: 30, year: 365 }[s.unit || "year"]);
+  const age = el.dataset.age === "" ? null : Number(el.dataset.age);
+  if (age !== null && age >= lim && !(s.allowChannels || []).map(norm).includes(ch)) return mode;
+  return "keep";
+}
+const cardSel = "ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model";
+function actual(el) {
+  if (el.classList.contains("ytof-hidden") || getComputedStyle(el).display === "none") return "hide";
+  if (el.classList.contains("ytof-dimmed")) return "dim";
+  return "keep";
+}
+function refresh() {
+  const all = [...document.querySelectorAll(cardSel)].filter(e => e.dataset.kind);
+  let hid = 0, dim = 0; const bad = [];
+  for (const e of all) {
+    const a = actual(e), x = expected(e);
+    if (a === "hide") hid++; if (a === "dim") dim++;
+    if (a !== x) bad.push(`${e.querySelector("a[href]").getAttribute("href")} 想定${x}/実際${a}`);
+  }
+  const $ = id => document.getElementById(id), st = window.__runStats;
+  $("s-hidden").textContent = hid; $("s-dim").textContent = dim; $("s-total").textContent = all.length;
+  $("s-runs").textContent = st.count; $("s-last").textContent = st.last.toFixed(1); $("s-max").textContent = st.max.toFixed(1);
+  $("s-avg").textContent = st.count ? (st.total / st.count).toFixed(1) : "0";
+  $("s-mismatch").textContent = bad.length;
+  $("s-detail").textContent = bad.slice(0, 3).join(" | ");
+  window.__bench = { hidden: hid, dimmed: dim, total: all.length, mismatches: bad };
+}
+setInterval(refresh, 500);
+
+document.getElementById("b-add").onclick = () => addCards(100);
+let barTimer = null, tick = 0;
+document.getElementById("b-bar").onclick = () => {
+  if (barTimer) { clearInterval(barTimer); barTimer = null; }
+  else barTimer = setInterval(() => {
+    tick++;
+    document.querySelectorAll("#progress").forEach(p => {
+      p.style.width = (Number(p.closest("[data-w]").dataset.w) + (tick % 2) * 0.01) + "%";
+    });
+  }, 1000);
+  document.getElementById("bar-state").textContent = barTimer ? "動作中" : "停止";
+};
+// 自動で負荷をかける（?add=10 で100件x10回、?bar=1 で再生バーの書き換え開始）
+const qq = new URLSearchParams(location.search);
+for (let i = 0; i < Number(qq.get("add") || 0); i++) addCards(100);
+if (qq.get("bar") === "1") document.getElementById("b-bar").click();
+document.getElementById("b-run").onclick = async () => {
+  const t = performance.now();
+  await window.__stubSend({ type: "ytof-count" });
+  document.getElementById("s-manual").textContent = (performance.now() - t).toFixed(1);
+};
+document.getElementById("b-flip").onclick = () => {
+  chrome.storage.sync.set({ mode: window.__stubSettings().mode === "dim" ? "hide" : "dim" });
+};
+</script>
+<link rel="stylesheet" href="../content.css">
+<script src="../content.js"></script>
+</body>
+</html>
