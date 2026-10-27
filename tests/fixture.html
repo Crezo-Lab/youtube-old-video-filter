@@ -60,6 +60,9 @@
     <div id="watch-list" class="grid"></div>
     <ytd-continuation-item-renderer>続きを読み込み中…</ytd-continuation-item-renderer>
   </section>
+
+  <!-- YouTube は前のページを hidden を付けて残す。ここのカードは判定も件数もしない（古くても印を付けない） -->
+  <ytd-page-manager><ytd-browse hidden><div id="inactive-list"></div></ytd-browse></ytd-page-manager>
 </ytd-app>
 
 <script src="chrome-stub.js"></script>
@@ -134,9 +137,14 @@ CTYPES.forEach(ct => FIXED.forEach((f, i) => {
   document.querySelector(hostFor(ct, i)).appendChild(build({ w: 0, ch: "@cooking", id: ++serial, ...f }, ct));
 }));
 addCards(12);   // 計 68 件 + 棚の1件
+// 見えていないページ（ytd-page-manager > [hidden]）の古い動画・ショート 各種1枚ずつ
+CTYPES.forEach(ct => {
+  document.querySelector("#inactive-list").appendChild(build({ kind: "normal", time: "5 年前", age: 1825, w: 0, ch: "@cooking", id: ++serial }, ct));
+});
 
 function expected(el) {
   const s = window.__stubSettings();
+  if (el.closest("ytd-page-manager > [hidden]")) return "keep";
   const mode = s.mode === "dim" ? "dim" : "hide";
   if (s.enabled === false) return "keep";
   if (el.dataset.kind === "shorts" && s.hideShorts !== false) return "hide";

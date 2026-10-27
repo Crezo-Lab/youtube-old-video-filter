@@ -39,6 +39,7 @@
   const CARD = OUTER + ", " + LOCKUP;
   const TITLE = "#video-title, #video-title-link, h3, .yt-lockup-metadata-view-model__title";
   const PLAYER = ".html5-video-player";
+  const INACTIVE_PAGE = "ytd-page-manager > [hidden]";
   const PROGRESS = [
     "ytd-thumbnail-overlay-resume-playback-renderer #progress",
     "[class*='WatchedProgressBarSegment']",
@@ -206,6 +207,8 @@
   function run() {
     timer = null;
     rafId = null;
+    const t0 = performance.now();
+    let judged = 0, seen = 0;
     const root = document.documentElement;
     root.classList.toggle("ytof-noshorts",
       settings.enabled && settings.hideShorts && !/\/shorts(\/|$)/.test(location.pathname));
@@ -221,8 +224,13 @@
     for (const card of document.querySelectorAll(CARD)) {
       // 外側のカード（ytd-rich-item-renderer など）の中の yt-lockup-view-model は外側で判定する
       if (card.localName === LOCKUP && card.parentElement && card.parentElement.closest(OUTER)) continue;
+      // YouTube は前のページ（検索・ホームなど）を hidden 属性を付けて DOM に残す（2026-10-27 Brave で測定）。
+      // 見えていないページのカードは判定も件数もしない。戻ってきたら gen が変わっているので判定し直す
+      if (card.closest(INACTIVE_PAGE)) continue;
+      seen++;
       let st = cache.get(card);
       if (!st || st.ctx !== ctx || !st.done) {
+        judged++;
         const prev = st;
         st = judge(card, active, limit);
         st.ctx = ctx;
@@ -241,7 +249,12 @@
     }
     counts = c;
     if (newlyHidden > 0) nudgeContinuation();
+    // 重さの記録（直近20回）。試験と遅さの調べで見る。ページの JS からは見えない（拡張の世界の window）
+    stats.push({ at: Math.round(t0), page, seen, judged, ms: +(performance.now() - t0).toFixed(1) });
+    if (stats.length > 20) stats.shift();
   }
+  const stats = [];
+  window.__ytofStats = stats;
 
   // 隠した結果、続きの読み込み（ytd-continuation-item-renderer）が画面内に来たのに
   // 読み込みが始まらない場合のための合図。スクロールの合図を出すだけで、位置は動かさない
