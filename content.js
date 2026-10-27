@@ -214,6 +214,8 @@
     root.classList.toggle("ytof-noshorts",
       settings.enabled && settings.hideShorts && !/\/shorts(\/|$)/.test(location.pathname));
     if (settings.enabled && settings.hideShorts) markShortsContainers();
+    const tShorts = performance.now();
+    const why = { fresh: 0, ctx: 0, inval: 0, retry: 0 };
 
     const page = pageType();
     const active = settings.enabled && settings.pages[page] === true;
@@ -232,6 +234,7 @@
       let st = cache.get(card);
       if (!st || st.ctx !== ctx || !st.done) {
         judged++;
+        why[!st ? "fresh" : st.ctx !== ctx ? "ctx" : st.inval ? "inval" : "retry"]++;
         const prev = st;
         st = judge(card, active, limit);
         st.ctx = ctx;
@@ -256,7 +259,7 @@
     }
     if (newlyHidden > 0) nudgeContinuation();
     // 重さの記録（直近20回）。試験と遅さの調べで見る。ページの JS からは見えない（拡張の世界の window）
-    stats.push({ at: Math.round(t0), page, seen, judged, ms: +(performance.now() - t0).toFixed(1) });
+    stats.push({ at: Math.round(t0), page, seen, judged, ms: +(performance.now() - t0).toFixed(1), shortsMs: +(tShorts - t0).toFixed(1), why });
     if (stats.length > 20) stats.shift();
   }
   const stats = [];
@@ -376,10 +379,21 @@
   // 消さずに「済み」を外す（投稿日の無いカードの「5回で見るのをやめる」の回数を残すため）
   function invalidate(card) {
     const st = cache.get(card);
-    if (st) st.done = false;
+    if (st) { st.done = false; st.inval = true; }
     const outer = card.parentElement ? card.parentElement.closest(OUTER) : null;
     const ost = outer ? cache.get(outer) : null;
     if (ost) ost.done = false;
+  }
+
+  const BRINGS = CARD + ", ytm-shorts-lockup-view-model, ytd-rich-shelf-renderer, ytd-guide-entry-renderer, " +
+    "yt-chip-cloud-chip-renderer, ytd-continuation-item-renderer";
+  /** 足された節が、判定やショートの印に関わる物を持ち込んだか */
+  function mayBringCards(r, t) {
+    if (t.closest(BRINGS)) return true; // 棚・メニュー・チップの中身の後入れ
+    for (const n of r.addedNodes) {
+      if (n.nodeType === 1 && (n.matches(BRINGS) || n.querySelector(BRINGS))) return true;
+    }
+    return false;
   }
 
   function onMutations(records) {
@@ -398,7 +412,9 @@
       if (t.closest(PLAYER)) continue;
       const card = t.closest(CARD);
       if (card) { invalidate(card); need = true; continue; }
-      if (r.type === "childList" && r.addedNodes.length) need = true; // 新しいカード・棚が来たかもしれない
+      // 新しいカード・棚・続きの読み込み・左のメニュー・チップが来たときだけ判定する。
+      // 再生画面の説明・再生数・お知らせの帯・ポップアップなどの書き換えでは動かない（2026-10-27 測定: 落ち着いた後の run はすべてこれだった）
+      if (r.type === "childList" && r.addedNodes.length && !need && mayBringCards(r, t)) need = true;
     }
     if (need) schedule();
   }

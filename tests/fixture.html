@@ -63,6 +63,8 @@
   </section>
 
   <!-- YouTube は前のページを hidden を付けて残す。ここのカードは判定も件数もしない（古くても印を付けない） -->
+  <!-- 再生画面の説明・再生数・お知らせの帯のような、カードと関係の無い書き換え（?noise=1 で 0.3 秒ごと） -->
+  <div id="noise"><span>12万 回視聴</span></div>
   <ytd-page-manager><ytd-browse hidden><div id="inactive-list"></div></ytd-browse></ytd-page-manager>
 </ytd-app>
 
@@ -202,6 +204,8 @@ for (let i = 0; i < Number(qq.get("add") || 0); i++) addCards(100);
 if (qq.get("bar") === "1") document.getElementById("b-bar").click();
 // ?autoadd=24: 1.1秒ごとに100件足して一番下へ（続きの合図の上限20回と「これ以上は古い動画だけです」を見る）
 let nudgeSeen = 0; document.addEventListener("scroll", e => { if (!e.isTrusted) nudgeSeen++; });
+// ?noise=1: カードの外で文字と要素を 0.3 秒ごとに書き換える。run が増えないこと（帯の run 回数）を見る
+if (qq.get("noise") === "1") { let k = 0; setInterval(() => { const n = document.getElementById("noise"); n.textContent = ""; n.append(document.createElement("span"), String(++k) + " 回視聴"); }, 300); }
 let autoLeft = Number(qq.get("autoadd") || 0);
 if (autoLeft) { const t = setInterval(() => { addCards(100); window.scrollTo(0, document.body.scrollHeight); if (--autoLeft <= 0) clearInterval(t); }, 1100); }
 document.getElementById("b-run").onclick = async () => {
