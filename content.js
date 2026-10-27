@@ -23,6 +23,16 @@
   };
   const JP_RE = /(\d+)\s*(秒|分|時間|日|週間|か月|ヶ月|カ月|ヵ月|年)前/;
   const EN_RE = /\b(\d+|an?|one)\s+(second|minute|hour|day|week|month|year)s?\s+ago\b/i;
+  // 拡張の表示言語（_locales）にある韓国語・中国語（簡体・繁体）・スペイン語の YouTube の表記
+  const OTHER = [
+    [/(\d+)\s*(초|분|시간|일|주|개월|년)\s*전/, {
+      "초": "second", "분": "minute", "시간": "hour", "일": "day", "주": "week", "개월": "month", "년": "year" }],
+    [/(\d+)\s*(秒钟|秒鐘|秒|分钟|分鐘|小时|小時|天|周|週|个月|個月|年)前/, {
+      "秒钟": "second", "秒鐘": "second", "秒": "second", "分钟": "minute", "分鐘": "minute", "小时": "hour", "小時": "hour",
+      "天": "day", "周": "week", "週": "week", "个月": "month", "個月": "month", "年": "year" }],
+    [/\bhace\s+(\d+|una?)\s+(segundo|minuto|hora|d[ií]a|semana|mes|año)(?:s|es)?\b/i, {
+      "segundo": "second", "minuto": "minute", "hora": "hour", "dia": "day", "día": "day", "semana": "week", "mes": "month", "año": "year" }]
+  ];
 
   const OUTER = "ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, ytd-grid-video-renderer";
   const LOCKUP = "yt-lockup-view-model";
@@ -81,6 +91,10 @@
     if (m) return Number(m[1]) * UNIT_DAYS[JP_UNITS[m[2]]];
     m = text.match(EN_RE);
     if (m) return (/^\d+$/.test(m[1]) ? Number(m[1]) : 1) * UNIT_DAYS[m[2].toLowerCase()];
+    for (const [re, units] of OTHER) {
+      m = text.match(re);
+      if (m) return (/^\d+$/.test(m[1]) ? Number(m[1]) : 1) * UNIT_DAYS[units[m[2].toLowerCase()]];
+    }
     return null;
   }
 
