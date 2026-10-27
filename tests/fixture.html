@@ -93,14 +93,17 @@ function build(d, ctype) {
   const href = d.kind === "shorts" ? `/shorts/s${d.id}` : `/watch?v=v${d.id}`;
   const timeHtml = d.kind === "live" ? `<span class="badge-style-type-live-now">ライブ配信中</span><span>1.2万人が視聴中</span>`
     : d.kind === "premiere" ? `<ytd-badge-supported-renderer><span>プレミア公開</span></ytd-badge-supported-renderer><span>公開予定</span>`
-    : `<span>${(d.id * 7919 % 900) + 10}万 回視聴</span>${d.time ? `<span>${d.time}</span>` : ""}`;
+    : `<span>${(d.id * 7919 % 900) + 10}万 回視聴</span>${d.time ? `<span>${d.time}</span>` : ""}` +
+      (d.badge ? `<ytd-badge-supported-renderer><span>4K</span></ytd-badge-supported-renderer>` : "");
+  // 題名に LIVE が入った古い動画（YouTube は題名のリンクの aria-label に題名をそのまま入れる）
+  const aria = d.liveTitle ? ` aria-label="Coldplay LIVE at Wembley 3 年前 12 分"` : "";
   const prog = d.w ? `<ytd-thumbnail-overlay-resume-playback-renderer><div id="progress" style="width:${d.w}%"></div></ytd-thumbnail-overlay-resume-playback-renderer>` : "";
   if (ctype === "lockup") {
-    el.innerHTML = `<div class="thumb"><a href="${href}"></a>${prog}</div><div class="yt-lockup-metadata-view-model__title"><a href="${href}">動画 ${d.id}</a></div>
+    el.innerHTML = `<div class="thumb"><a href="${href}"></a>${prog}</div><div class="yt-lockup-metadata-view-model__title"><a href="${href}"${aria}>動画 ${d.id}</a></div>
       <div class="yt-content-metadata-view-model__metadata-row"><span class="yt-content-metadata-view-model__metadata-text"><a href="/${d.ch}">${d.ch.slice(1)}</a></span></div>
       <div class="meta">${timeHtml}</div>`;
   } else {
-    el.innerHTML = `<div class="thumb"><a href="${href}"></a>${prog}</div><h3><a id="video-title" href="${href}">動画 ${d.id}（${d.kind}）</a></h3>
+    el.innerHTML = `<div class="thumb"><a href="${href}"></a>${prog}</div><h3><a id="video-title" href="${href}"${aria}>動画 ${d.id}（${d.kind}）</a></h3>
       <ytd-channel-name><div id="text"><a href="/${d.ch}">${d.ch.slice(1)}</a></div></ytd-channel-name>
       <div id="metadata-line" class="meta">${timeHtml}</div>`;
   }
@@ -118,18 +121,19 @@ function addCards(n) {
   }
 }
 
-// 狙った組み合わせを各カード種に必ず入れる（4種 x 12 = 48 件）
+// 狙った組み合わせを各カード種に必ず入れる（4種 x 14 = 56 件）
 const FIXED = [
   { kind: "normal", time: "3 日前", age: 3 }, { kind: "normal", time: "2 年前", age: 730 }, { kind: "normal", time: "1 month ago", age: 30 },
   { kind: "live", time: null, age: 0 }, { kind: "premiere", time: null, age: 0 }, { kind: "shorts", time: null, age: 0 },
   { kind: "normal", time: "2 年前", age: 730, w: 85 }, { kind: "normal", time: "3 日前", age: 3, w: 90 }, { kind: "normal", time: "3 日前", age: 3, w: 40 },
   { kind: "normal", time: "5 年前", age: 1825, ch: "@oldmaster" }, { kind: "normal", time: "1 日前", age: 1, ch: "@spammer" },
-  { kind: "normal", time: null, age: null }
+  { kind: "normal", time: null, age: null },
+  { kind: "normal", time: "2 年前にプレミア公開", age: 730, badge: true }, { kind: "normal", time: "3 年前", age: 1095, liveTitle: true }
 ];
 CTYPES.forEach(ct => FIXED.forEach((f, i) => {
   document.querySelector(hostFor(ct, i)).appendChild(build({ w: 0, ch: "@cooking", id: ++serial, ...f }, ct));
 }));
-addCards(12);   // 計 60 件 + 棚の1件
+addCards(12);   // 計 68 件 + 棚の1件
 
 function expected(el) {
   const s = window.__stubSettings();

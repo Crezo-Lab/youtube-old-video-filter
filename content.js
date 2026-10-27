@@ -51,18 +51,29 @@
 
   const norm = s => (s || "").trim().toLowerCase();
 
-  function isLiveOrUpcoming(card) {
-    // ライブ配信中、またはプレミア公開・配信予定バッジがある場合は除外判定しない
-    if (card.querySelector("[class*='badge-style-type-live-now'], [aria-label*='ライブ'], [aria-label*='LIVE'], ytd-thumbnail-overlay-time-status-renderer[overlay-style='LIVE']")) {
-      return true;
-    }
-    const text = (card.textContent || "").toLowerCase();
-    if (/プレミア公開|公開予定|配信中|live now|scheduled for|upcoming/i.test(text)) {
-      if (card.querySelector("[class*='badge-style-type-live-now'], ytd-badge-supported-renderer, .badge-shape-wiz--live")) {
-        return true;
-      }
+  // ライブ配信中のバッジ。タイトル・チャンネル名のリンクの aria-label には題名がそのまま入る
+  // （「〇〇 LIVE」「【ライブ】」）ので、aria-label はバッジの部品に付いた物だけ見る
+  const LIVE_BADGE = "[class*='badge-style-type-live-now'], .badge-shape-wiz--live, " +
+    "ytd-thumbnail-overlay-time-status-renderer[overlay-style='LIVE'], " +
+    "[class*='badge'][aria-label*='ライブ'], [class*='badge'][aria-label*='LIVE']";
+  const NOT_BADGE = TITLE + ", ytd-channel-name, a[href^='/@'], a[href^='/channel/']";
+
+  function hasLiveBadge(card) {
+    for (const n of card.querySelectorAll(LIVE_BADGE)) {
+      if (!n.closest(NOT_BADGE)) return true;
     }
     return false;
+  }
+
+  /** 投稿日の文字の候補から日数を出す。ライブ中は 0。「◯前」が読めなければ null（公開予定・再生リストなど＝隠さない）。
+   *  「2 年前にプレミア公開」のように公開済みの物は、文字に「プレミア公開」があっても日数で判定する */
+  function ageFromTexts(texts, liveBadge) {
+    if (liveBadge) return 0;
+    for (const t of texts) {
+      const d = parseAgeDays(t);
+      if (d !== null) return d;
+    }
+    return null;
   }
 
   function parseAgeDays(text) {
@@ -74,16 +85,16 @@
   }
 
   function getAgeDays(card) {
-    if (isLiveOrUpcoming(card)) return 0; // ライブ・予定動画は最新扱い
+    if (hasLiveBadge(card)) return 0; // ライブ配信中は最新扱い
+    const texts = [];
     for (const n of card.querySelectorAll("span, yt-formatted-string, [class*='metadata-text'], [class*='badge']")) {
       if (n.children.length > 2) continue;
       const t = (n.textContent || "").trim();
       if (!t || t.length > 40) continue;
       if (n.closest(TITLE)) continue;
-      const d = parseAgeDays(t);
-      if (d !== null) return d;
+      texts.push(t);
     }
-    return null;
+    return ageFromTexts(texts, false);
   }
 
   function getWatchedPercent(card) {
@@ -331,4 +342,5 @@
 
   loadSettings();
   window.__ytofParse = parseAgeDays;
+  window.__ytofAge = ageFromTexts;
 })();

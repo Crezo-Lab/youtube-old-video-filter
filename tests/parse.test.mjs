@@ -32,5 +32,21 @@ for (const [text, want] of cases) {
   if (!ok) { fail++; console.log(`NG  "${text}" -> ${got} （期待 ${want}）`); }
   else console.log(`ok  "${text}" -> ${got}`);
 }
+// カードの文字の並びから日数（ライブ判定込み）。公開済みのプレミア・題名に LIVE を含む古い動画を 0 にしない
+const age = ctx.window.__ytofAge;
+assert.equal(typeof age, "function", "window.__ytofAge が見つからない");
+const ageCases = [
+  ["公開済みのプレミア", ["123万 回視聴", "2 年前にプレミア公開"], false, 730],
+  ["題名に LIVE（題名は候補に入らない）", ["Coldplay", "50万 回視聴", "3 年前"], false, 1095],
+  ["公開予定（日数なし）", ["プレミア公開", "公開予定"], false, null],
+  ["ライブ配信中のバッジ", ["ライブ配信中", "1.2万人が視聴中"], true, 0],
+  ["配信済み", ["Streamed 2 years ago"], false, 730]
+];
+for (const [name, texts, live, want] of ageCases) {
+  const got = age(texts, live);
+  const ok = want === null ? got === null : Math.abs(got - want) < 1e-9;
+  if (!ok) { fail++; console.log(`NG  ${name} -> ${got} （期待 ${want}）`); }
+  else console.log(`ok  ${name} -> ${got}`);
+}
 console.log(fail ? `${fail} 件失敗` : "全件 ok");
 process.exit(fail ? 1 : 0);
