@@ -34,5 +34,6 @@
   "statusBlocked": { "message": " / $BLOCKED$ bloqueados", "placeholders": { "blocked": { "content": "$1" } } },
   "statusTitle": { "message": "Ocultos en esta página" },
   "statWatched": { "message": "Vistos" },
-  "statBlocked": { "message": "Bloqueados" }
+  "statBlocked": { "message": "Bloqueados" },
+  "endOnlyOld": { "message": "A partir de aquí solo hay videos antiguos" }
 }

@@ -34,5 +34,6 @@
   "statusBlocked": { "message": "／屏蔽 $BLOCKED$ 条", "placeholders": { "blocked": { "content": "$1" } } },
   "statusTitle": { "message": "本页已隐藏" },
   "statWatched": { "message": "已观看" },
-  "statBlocked": { "message": "已屏蔽" }
+  "statBlocked": { "message": "已屏蔽" },
+  "endOnlyOld": { "message": "之后只有较旧的视频" }
 }

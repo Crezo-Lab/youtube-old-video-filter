@@ -34,5 +34,6 @@
   "statusBlocked": { "message": "／차단 $BLOCKED$개", "placeholders": { "blocked": { "content": "$1" } } },
   "statusTitle": { "message": "이 페이지에서 숨김" },
   "statWatched": { "message": "시청함" },
-  "statBlocked": { "message": "차단" }
+  "statBlocked": { "message": "차단" },
+  "endOnlyOld": { "message": "이후로는 오래된 동영상뿐입니다" }
 }

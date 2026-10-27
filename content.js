@@ -10,7 +10,8 @@
     watchedPercent: 80,
     hideShorts: true,
     allowChannels: [], // "@handle" またはチャンネル名。古くても表示する
-    blockChannels: []  // "@handle" またはチャンネル名。無条件で非表示にする
+    blockChannels: [], // "@handle" またはチャンネル名。無条件で非表示にする
+    lang: "auto"       // ポップアップの表示言語（auto はブラウザの言語）。一覧の下の文言に使う
   };
 
   const UNIT_DAYS = {
@@ -248,6 +249,11 @@
       if (st.reason) c[st.reason]++;
     }
     counts = c;
+    // 続きが読み込まれて（つまみを引いてのスクロールなど）続きの読み込みの後ろでなくなった1行は消す
+    if (endNotice && endNotice.isConnected) {
+      const prev = endNotice.previousElementSibling;
+      if (!prev || prev.localName !== "ytd-continuation-item-renderer") hideEndNotice();
+    }
     if (newlyHidden > 0) nudgeContinuation();
     // 重さの記録（直近20回）。試験と遅さの調べで見る。ページの JS からは見えない（拡張の世界の window）
     stats.push({ at: Math.round(t0), page, seen, judged, ms: +(performance.now() - t0).toFixed(1) });
@@ -262,25 +268,61 @@
   let nudges = 0;
   let nudgeTimer = null;
   function nudgeContinuation() {
-    if (nudges >= 20 || nudgeTimer) return; // 全部隠れても読み続けないよう上限。手でスクロール・ページ移動で戻す
+    if (nudgeTimer) return;
+    if (nudges >= 20) { // 全部隠れても読み続けないよう上限。手でスクロール・ページ移動で戻す。止めたことは一覧の下に出す
+      const el = visibleContinuation();
+      if (el) showEndNotice(el);
+      return;
+    }
     const wait = 1000 - (Date.now() - lastNudge);
     if (wait > 0) {
       nudgeTimer = setTimeout(() => { nudgeTimer = null; nudgeContinuation(); }, wait);
       return;
     }
-    for (const el of document.querySelectorAll("ytd-continuation-item-renderer")) {
-      const r = el.getBoundingClientRect();
-      if (r.width === 0 && r.height === 0) continue; // 表示されていない
-      if (r.top < innerHeight + 400 && r.bottom > 0) {
-        lastNudge = Date.now();
-        nudges++;
-        document.dispatchEvent(new Event("scroll", { bubbles: true }));
-        return;
-      }
+    if (visibleContinuation()) {
+      lastNudge = Date.now();
+      nudges++;
+      document.dispatchEvent(new Event("scroll", { bubbles: true }));
     }
   }
+  /** 画面の近くにある続きの読み込み（見えていない前のページの物は除く） */
+  function visibleContinuation() {
+    for (const el of document.querySelectorAll("ytd-continuation-item-renderer")) {
+      if (el.closest(INACTIVE_PAGE)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) continue; // 表示されていない
+      if (r.top < innerHeight + 400 && r.bottom > 0) return el;
+    }
+    return null;
+  }
+
+  // 合図を止めたときに一覧の下へ出す1行。手でスクロール・ページ移動・設定の変更で消す
+  let endNotice = null;
+  function msg(key, fallback) {
+    const l = settings.lang;
+    if (l && l !== "auto" && typeof I18N_DICTS !== "undefined" && I18N_DICTS[l] && I18N_DICTS[l][key]) return I18N_DICTS[l][key];
+    const m = typeof chrome !== "undefined" && chrome.i18n && chrome.i18n.getMessage ? chrome.i18n.getMessage(key) : "";
+    return m || fallback;
+  }
+  function showEndNotice(cont) {
+    if (endNotice && endNotice.isConnected && endNotice.previousElementSibling === cont) return;
+    if (!endNotice) {
+      endNotice = document.createElement("div");
+      endNotice.className = "ytof-end-notice";
+      endNotice.setAttribute("role", "status");
+    }
+    endNotice.textContent = msg("endOnlyOld", "これ以上は古い動画だけです");
+    cont.after(endNotice);
+  }
+  function hideEndNotice() {
+    if (endNotice) endNotice.remove();
+  }
+  function resetNudges() {
+    nudges = 0;
+    hideEndNotice();
+  }
   for (const ev of ["wheel", "keydown", "touchmove"]) {
-    window.addEventListener(ev, () => (nudges = 0), { passive: true });
+    window.addEventListener(ev, resetNudges, { passive: true });
   }
 
   function schedule() {
@@ -300,7 +342,7 @@
 
   function rejudgeAll() {
     gen++;
-    nudges = 0;
+    resetNudges();
     schedule();
   }
 
@@ -315,6 +357,7 @@
       allow = new Set((settings.allowChannels || []).map(norm).filter(Boolean));
       block = new Set((settings.blockChannels || []).map(norm).filter(Boolean));
       gen++;
+      resetNudges();
       runNow();
     });
   }
@@ -370,4 +413,5 @@
   loadSettings();
   window.__ytofParse = parseAgeDays;
   window.__ytofAge = ageFromTexts;
+  window.__ytofMsg = msg;
 })();

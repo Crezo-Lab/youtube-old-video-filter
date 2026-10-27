@@ -113,5 +113,6 @@
   },
   "statusTitle": { "message": "Hidden on this page" },
   "statWatched": { "message": "Watched" },
-  "statBlocked": { "message": "Blocked" }
+  "statBlocked": { "message": "Blocked" },
+  "endOnlyOld": { "message": "Only older videos beyond this point" }
 }

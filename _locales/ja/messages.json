@@ -113,5 +113,6 @@
   },
   "statusTitle": { "message": "このページで隠した数" },
   "statWatched": { "message": "視聴済み" },
-  "statBlocked": { "message": "ブロック" }
+  "statBlocked": { "message": "ブロック" },
+  "endOnlyOld": { "message": "これ以上は古い動画だけです" }
 }

@@ -11,6 +11,19 @@
   opacity: 0.8 !important;
 }
 
+/* 続きの読み込みの合図を止めたときの1行（一覧の下）。格子の中でも1行を占める */
+.ytof-end-notice {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  padding: 16px 12px 24px;
+  text-align: center;
+  font: 400 14px/20px "Roboto", "Arial", sans-serif;
+  color: var(--yt-spec-text-secondary, #606060);
+}
+
 /* Shorts 非表示（棚・カード・サイドメニュー・チップ）
    中身で選ぶ擬似クラス（has）はページ全体の再計算が重いので使わない。中身の判定は content.js が印（ytof-short / ytof-short-box）で付ける */
 html.ytof-noshorts ytd-reel-shelf-renderer,

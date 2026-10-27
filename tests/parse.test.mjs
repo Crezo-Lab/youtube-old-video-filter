@@ -54,5 +54,27 @@ for (const [name, texts, live, want] of ageCases) {
   if (!ok) { fail++; console.log(`NG  ${name} -> ${got} （期待 ${want}）`); }
   else console.log(`ok  ${name} -> ${got}`);
 }
+
+// 一覧の下の「これ以上は古い動画だけです」: 6言語の文言がそろっているか・ポップアップの言語に従うか
+const check = (name, ok, got) => { if (!ok) { fail++; console.log(`NG  ${name} -> ${got}`); } else console.log(`ok  ${name} -> ${got}`); };
+const LANGS = ["ja", "en", "zh_TW", "zh_CN", "ko", "es"];
+const dictSrc = readFileSync(new URL("../i18n-dict.js", import.meta.url), "utf8");
+const dict = vm.runInNewContext(dictSrc + ";I18N_DICTS");
+for (const l of LANGS) {
+  const loc = JSON.parse(readFileSync(new URL(`../_locales/${l}/messages.json`, import.meta.url), "utf8"));
+  check(`endOnlyOld の文言 ${l}（i18n-dict と _locales が同じ）`, !!dict[l].endOnlyOld && loc.endOnlyOld?.message === dict[l].endOnlyOld, dict[l].endOnlyOld);
+}
+const manifest = JSON.parse(readFileSync(new URL("../manifest.json", import.meta.url), "utf8"));
+check("manifest で i18n-dict.js を content.js より先に読む", manifest.content_scripts[0].js.join(",") === "i18n-dict.js,content.js", manifest.content_scripts[0].js.join(","));
+check("言語の辞書が無いときは日本語の既定の文言", ctx.window.__ytofMsg("endOnlyOld", "これ以上は古い動画だけです") === "これ以上は古い動画だけです", ctx.window.__ytofMsg("endOnlyOld", "これ以上は古い動画だけです"));
+// ポップアップで韓国語を選んだ状態（storage の lang: "ko"）で読み込む
+const ctx2 = {
+  ...ctx, window: { addEventListener: noop }, performance,
+  chrome: { storage: { sync: { get: (d, cb) => cb({ ...d, lang: "ko" }) }, onChanged: { addListener: noop } }, runtime: { onMessage: { addListener: noop } }, i18n: { getMessage: () => "ブラウザの言語" } }
+};
+vm.createContext(ctx2);
+vm.runInContext(dictSrc, ctx2);
+vm.runInContext(src, ctx2);
+check("lang: ko のときは韓国語", ctx2.window.__ytofMsg("endOnlyOld", "x") === dict.ko.endOnlyOld, ctx2.window.__ytofMsg("endOnlyOld", "x"));
 console.log(fail ? `${fail} 件失敗` : "全件 ok");
 process.exit(fail ? 1 : 0);

@@ -34,5 +34,6 @@
   "statusBlocked": { "message": "／封鎖 $BLOCKED$ 部", "placeholders": { "blocked": { "content": "$1" } } },
   "statusTitle": { "message": "本頁已隱藏" },
   "statWatched": { "message": "已觀看" },
-  "statBlocked": { "message": "已封鎖" }
+  "statBlocked": { "message": "已封鎖" },
+  "endOnlyOld": { "message": "之後只有較舊的影片" }
 }
