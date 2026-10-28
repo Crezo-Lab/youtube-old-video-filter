@@ -1,4 +1,4 @@
-// YouTube 古い動画フィルター - content script (v1.2.1)
+// YouTube 古い動画フィルター - content script (v1.2.2)
 (() => {
   const DEFAULTS = {
     enabled: true,
